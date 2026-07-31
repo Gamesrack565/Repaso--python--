@@ -1,0 +1,5 @@
+// Version de python utilizada: 3.10
+
+// Comando para crear entorno virtual:
+        py -3.10 -m venv .venv
+
