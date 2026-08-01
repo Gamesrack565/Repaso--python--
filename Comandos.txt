@@ -1,5 +1,10 @@
-// Version de python utilizada: 3.10
+// Version de python utilizada: 3.10 - TODO SIN IA
 
 // Comando para crear entorno virtual:
         py -3.10 -m venv .venv
 
+// NOTAS:
+Existen diferencias curiosas entre versiones de python, como:
+        print(f"Edad = {diccionario["edad"]}") ----> Solo Funciona con la 3.12.10 
+Y esto se debe al tema de los "
+        print(f"Edad = {diccionario['edad']}") ----> Funciona correctamente para la 3.10
