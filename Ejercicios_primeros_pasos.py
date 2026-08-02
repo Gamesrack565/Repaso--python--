@@ -1,9 +1,29 @@
 # Escribir un programa que realice la siguiente operacioón aritmetica
 #((3+2)/(2*5))^2
 
-#FALTA MEJORAR COSAS
+#Calculadora funciona con entrada de numeros enteros
+#Falta mejorar
+#Falta que pueda recibir numeros flotantes
 
 print("Ejercicio 1 - FALTAN MEJORAR COSAS\n")
+
+def parentesis(lista):
+    movimiento = 0
+    while movimiento <= len(lista)-1:
+        if 0 <= movimiento < len(lista) and lista[movimiento] == ")":
+            for ind in range(movimiento, -1,-1):
+                if lista[ind] == "(":
+                    operacion = lista[ind+1: movimiento]
+                    resultado = funcion(operacion)
+                    lista[ind:movimiento+1] = [resultado]
+                    movimiento = 0
+                    break
+        else:
+            movimiento +=1
+
+    return funcion(lista)
+
+
 def funcion(lista):
     #lista_enumerada = enumerate(lista)
     #Se tiene una variable para tener un control del indice de la lista
@@ -11,34 +31,58 @@ def funcion(lista):
     movimiento = 0
     #Ciclo en cargado de movernos
     while movimiento <= len(lista) -1:
-        #Si se detecta un caracter de oepracion, se entiende que debe realizar dicha operacion
-        if lista[movimiento] in ("+", "-", "*"):
-            #Almacena los numeros anteriores y posteriores para realizar las operaciones
-            num1 = int(lista[movimiento-1])
-            num2 = int(lista[movimiento+1])
+        
+        if lista[movimiento] == "^":
+            resultado = float(lista[movimiento-1]) ** float(lista[movimiento+1])
+            lista[movimiento-1:movimiento+2] = [resultado]
+            print(f"potencia: {lista}")
+            movimiento = 0
+
+        else:
+            movimiento +=1
+
+    movimiento = 0
+    while movimiento <= len(lista) -1:
+        if lista[movimiento] in ("*", "/"):
+            match lista[movimiento]:
+                case "*":
+                    resultado = float(lista[movimiento-1]) * float(lista[movimiento+1])
+                    lista[movimiento-1:movimiento+2] = [resultado]
+                    print(f"multiplicacion: {lista}")
+                case "/":
+                    resultado = float(lista[movimiento-1]) / float(lista[movimiento+1])
+                    lista[movimiento-1:movimiento+2] = [resultado]
+                    print(f"division: {lista}")
+                case _:
+                    print("Error")
+            movimiento = 0
+
+        else:
+            movimiento +=1
+
+    movimiento = 0
+    while movimiento <= len(lista) -1:
+        if lista[movimiento] in ("+", "-"):
             match lista[movimiento]:
                 #Operacion suma
                 case "+":
-                    resultado = num1 + num2
+                    resultado = float(lista[movimiento-1]) + float(lista[movimiento+1])
+                    lista[movimiento-1:movimiento+2] = [resultado]
+                    print(f"suma: {lista}")
                 #Operacion resta
                 case "-":
-                    resultado = num1 - num2
-                #Operacion multiplicacion
-                case "*":
-                    resultado = num1 * num2
-                #En caso de error
+                    resultado = float(lista[movimiento-1]) - float(lista[movimiento+1])
+                    lista[movimiento-1:movimiento+2] = [resultado]
+                    print(f"resta: {lista}")
                 case _:
                     print("Error")
-        #Si se detecta la division, se almacena el resultado de la primera operacion
-        elif lista[movimiento] in ("/"):
-            resultado1 = resultado
-        #Si se detecta la potencia, se almacena el valor de la potencia de acuerdo al numero que se encuentra en la posicion siguiente
-        elif lista[movimiento] in ("^"):
-            potencia = int(lista[movimiento + 1])
-        #Avanzamos
-        movimiento +=1
+            movimiento = 0
+
+        else:
+            movimiento +=1
+
     #Realizamos la operacion final de acuerdo a los resultados obtenidos
-    return float(pow((resultado1 / resultado), potencia))
+    return float(lista[0])
 
 #Se tiene una lista vacia para almacenar los valores que se ingresen
 lista = []
@@ -57,9 +101,16 @@ for caracter in valor.replace(" ", ""):
         acumulado += caracter
     #Si se detecta un caracter de operacion, se agrega el numero acumulado y el caracter a la lista, y se reinicia la variable acumulado
     else:
-        lista.append(acumulado)
+        if not acumulado == "":
+            lista.append(acumulado)
+        
         lista.append(caracter)
         acumulado = ""
-    
 
-print(funcion(lista))
+if not acumulado == "":
+    lista.append(acumulado)
+
+print(lista)
+print(parentesis(lista))
+
+
