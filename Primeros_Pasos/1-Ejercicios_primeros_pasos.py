@@ -7,29 +7,39 @@
 #Con números decimales y parentesis, siguiendo la jerarquia de operaciones
 
 
+#Librerias utilizadas
+#Os: Para limpiar la pantalla
+import os
+#Difflib: Para poder detectar si el usuario desea salir del programa
+#Especificamente hace una comparacion de cadenas y nos dice si son similares o no, dependiendo de un porcentaje que le indiquemos
+from difflib import get_close_matches
 
 #Funcion principal "CALCULADORA"
-def calculadora():
+def calculadora(valor):
     """
     Se encarga de procesar la operación de entrada y realiza el llamado de las funciones para procesar
     numeros decimales, detetcar parentesis y realizar las operaciones.
     """
     #Se tiene una lista vacia para almacenar los valores que se ingresen
     lista = []
-    print("Ingresa tus valores:")
-    #Se pide la operacion en una sola linea, y se eliminan los espacios para poder separar los valores
-    valor = input(": ")
+
     acumulado = ""
     for caracter in valor.replace(" ", ""):
-        #Si se detecta el signo de igual, se entiende que la operacion ha terminado y se agrega el ultimo valor a la lista
+        #Si se detecta el signo de igual, la operacion ha terminado
         if caracter == "=":
             lista.append(acumulado)
             acumulado = ""
             break
-        #Si se detecta un caracter numerico, se va acumulando en una variable para poder formar el numero completo
-        elif caracter.isdigit():
+            
+        #1- Es un número o un punto decimal, se acumula en la variable "acumulado"
+        elif caracter.isdigit() or caracter == ".":
             acumulado += caracter
-        #Si se detecta un caracter de operacion, se agrega el numero acumulado y el caracter a la lista, y se reinicia la variable acumulado
+            
+        #2- Es un signo de menos, y es el primer caracter o viene despues de un signo matemático, se acumula en la variable "acumulado"
+        elif caracter == "-" and acumulado == "" and (len(lista) == 0 or lista[-1] in ("(", "+", "-", "*", "/", "^")):
+            acumulado += caracter
+            
+        #3- Es un signo matemático, se agrega a la lista y se reinicia la variable "acumulado"
         else:
             if not acumulado == "":
                 lista.append(acumulado)
@@ -37,38 +47,15 @@ def calculadora():
             lista.append(caracter)
             acumulado = ""
 
+    # Red de seguridad final
     if not acumulado == "":
         lista.append(acumulado)
 
-    #Se recorre la lista para agregar números decimales, si no hay se regresa la lista normal
-    lista = agregar_decimal(lista)
     #Verifica parentesis y realiza las operaciones de acuerdo al orden
-    lista = parentesis(lista)
-    #Regresa el resultado en formato flotante
-    return float(lista[0])
-
-#Funcion que verifica si hay decimales
-def agregar_decimal(lista):
-    """
-    Funcion encargada de verificar si el usuario quería poner numeros decimales
-    Recorre la lista en busca de un ".", si lo encuentra remplaza los caracteres dentro de la lista
-    por un solo caracter
-    """
-    #Chequeo de punto decimal
-    #Variable encargada de recorrer la lista
-    detectar = 0
-    #Ciclo encargado de recorrer la lista y verificar si hay un punto decimal
-    while detectar <= len(lista)-1:
-        if lista[detectar] == ".":
-            #En caso de encontrar un punto decimal, se crea un nuevo caracter con el numero anterior, el punto y el numero posterior
-            caracter = lista[detectar-1] + lista[detectar] + lista[detectar+1]
-            lista[detectar-1:detectar+2] = [caracter]
-        else:
-            #Si no se encuentra un punto decimal, se sigue recorriendo la lista
-            detectar += 1
-
-    #Se regresa la lista con los valores decimales ya formados
-    return lista
+    resultado = parentesis(lista)
+    
+    #Regresa el resultado
+    return resultado
 
 #Segunda función principal encargada de identificar parentesis
 def parentesis(lista):
@@ -98,7 +85,7 @@ def parentesis(lista):
             movimiento +=1
 
     #Se regresa la lista con los valores ya procesados
-    return lista
+    return funcion(lista)
 
 #Funcion capaz de resolver las oepraciones
 def funcion(lista):
@@ -132,11 +119,14 @@ def funcion(lista):
                     #print(f"multiplicacion: {lista}")
                 #Operacion division
                 case "/":
-                    #Se realiza la operación de división y se remplaza el contenido de la lista por el resultado
-                    resultado = float(lista[movimiento-1]) / float(lista[movimiento+1])
-                    #Se remplaza el contenido de la lista por el resultado
-                    lista[movimiento-1:movimiento+2] = [resultado]
-                    #print(f"division: {lista}")
+                    try:
+                        #Se realiza la operación de división y se remplaza el contenido de la lista por el resultado
+                        resultado = float(lista[movimiento-1]) / float(lista[movimiento+1])
+                        #Se remplaza el contenido de la lista por el resultado
+                        lista[movimiento-1:movimiento+2] = [resultado]
+                        #print(f"division: {lista}")
+                    except ZeroDivisionError as e:
+                        return print(f"Error: {e}")
                 case _:
                     print("Error")
             movimiento = 0
@@ -171,13 +161,34 @@ def funcion(lista):
             movimiento +=1
 
     #Realizamos la operacion final de acuerdo a los resultados obtenidos
-    return lista
+    return float(lista[0])
 
 
-print("=======================================")
-print("Ejercicio 1 - CALCULADORA\n")
-print("=======================================")
+print("=======================================================================")
+print("\tEjercicio 1 - CALCULADORA\n")
+print("=======================================================================")
+print("Calculadora funcionaL básica, realiza sumas, restas, divisiones, multiplicaciones y potencias")
+print("Con números decimales y parentesis, siguiendo la jerarquia de operaciones")
+print("----> Si de sea salir del programa escriba 'salir' <----\n")
 
-print(f"= {calculadora()}")
+while True:
+    print("Ingresa tus valores:")
+    #Se pide la operacion en una sola linea
+    valor = input(": ").lower().strip() 
 
+    comandos_salida = ["salir", "exit"]
 
+    es_salida = get_close_matches(valor, comandos_salida, n=1, cutoff=0.5)
+
+    #Se verifica si el usuario desea salir del programa
+    if len(es_salida) > 0 or valor == "s":
+        os.system("cls")
+        print("=========================")
+        print("Saliendo del programa...")
+        print("=========================")
+        print("By: Angel A Higuera")
+        break
+    #En caso de que no se desee salir del programa, se realiza la operación correspondiente
+    else:
+        resultado = calculadora(valor)
+        print(f"=: {resultado}\n")
